@@ -5,9 +5,13 @@ import Exa from "exa-js";
 const exa = new Exa(process.env.EXA_API_KEY as string);
 
 export async function POST(req: NextRequest) {
+  const requestId = crypto.randomUUID();
+  const clientIp = req.headers.get('x-forwarded-for') ?? 'unknown';
+  console.log(`[exasearch] ${requestId} request received ip=${clientIp}`);
   try {
     const { claim } = await req.json();
     if (!claim) {
+      console.warn(`[exasearch] ${requestId} rejected: missing claim ip=${clientIp}`);
       return NextResponse.json({ error: 'Claim is required' }, { status: 400 });
     }
 
@@ -28,8 +32,10 @@ export async function POST(req: NextRequest) {
       url: item.url
     })).reverse();
 
+    console.log(`[exasearch] ${requestId} succeeded ip=${clientIp} results=${simplifiedResults.length}`);
     return NextResponse.json({ results: simplifiedResults });
   } catch (error) {
+    console.error(`[exasearch] ${requestId} failed ip=${clientIp} error=${error}`);
     return NextResponse.json({ error: `Failed to perform search | ${error}` }, { status: 500 });
   }
 }
