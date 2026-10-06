@@ -31,5 +31,10 @@
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
+  },
+  "overrides": {
+    "minimatch": {
+      "brace-expansion": "5.0.12"
+    }
   }
 }
